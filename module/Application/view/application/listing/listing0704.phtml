@@ -1,0 +1,81 @@
+<?php 
+/**
+ * ZF2 Buch Kapitel 7
+ * 
+ * Das Buch "Zend Framework 2 - Von den Grundlagen bis zur fertigen Anwendung"
+ * von Ralf Eggert ist im Addison-Wesley Verlag erschienen. 
+ * ISBN 978-3-8273-2994-3
+ * 
+ * @package    Application
+ * @author     Ralf Eggert <r.eggert@travello.de>
+ * @copyright  Alle Listings sind urheberrechtlich geschützt!
+ * @link       http://www.zendframeworkbuch.de/ und http://www.awl.de/2994
+ */
+
+/**
+ * Listing 7.4 view script
+ * 
+ * @package    Application
+ */
+?>
+<div class="row">
+<div class="span9">
+<h1>Listing 7.4</h1>
+<h3>Konfiguration für Services mit <code>getServiceConfig()</code> bereitstellen</h3>
+<pre>
+&lt;?php 
+namespace Pizza;
+
+use Zend\Authentication\Storage\Session;
+use Zend\Authentication\AuthenticationService;
+use Zend\Authentication\Adapter\DbTable;
+use Zend\Cache\StorageFactory;
+use Zend\Log\Logger;
+use Zend\Log\Writer\Stream;
+use Zend\ModuleManager\Feature\ServiceProviderInterface;
+use Pizza\Mapper\Pizza as PizzaMapper;
+
+class Module implements ServiceProviderInterface
+{
+    public function getServiceConfig()
+    {
+        return array(
+            'invokables' => array(
+                'mailer'             => 'Pizza\Mail\MailerService',
+                'Pizza\Table\Pizza'  => 'Pizza\Table\Pizza',
+                'Pizza\Entity\Pizza' => 'Pizza\Entity\Pizza',
+            ),
+            'factories' => array(
+                'db'             => 'Zend\Db\Adapter\AdapterServiceFactory',
+                'navigation'     => 'Zend\Navigation\Service\DefaultNavigationFactory',
+                'translator'     => 'Zend\I18n\Translator\TranslatorServiceFactory',
+                'Pizza\Authentication' => function ($sm) {
+                    $storage = new Session();
+                    $adapter = new DbTable($sm->get('db'), 'users', 'nick', 'pass');
+                    $service = new AuthenticationService($storage, $adapter);
+                    return $service;
+                },
+                'Pizza\Cache' => function ($sm) {
+                    $config = $sm->get('Config');
+                    $cache  = StorageFactory::factory($config['cache']);
+                    return $cache;
+                },
+                'Pizza\Log' => function ($sm) {
+                    $config = $sm->get('Config');
+                    $logger = new Logger();
+                    $logger->addWriter(new Stream($config['log']['logfile']));
+                    return $logger;
+                },
+                'Pizza\Mapper\Pizza' => function ($sm) {
+                    $table  = $sm->get('Pizza\Table\Pizza');
+                    $entity = $sm->get('Pizza\Entity\Pizza');
+                    $mapper = new PizzaMapper($table, $entity);
+                    return $cache;
+                },
+            ),
+        );
+    }
+}
+</pre>
+</div>
+</div>

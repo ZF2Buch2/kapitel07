@@ -1,0 +1,52 @@
+<?php 
+/**
+ * ZF2 Buch Kapitel 7
+ * 
+ * Das Buch "Zend Framework 2 - Von den Grundlagen bis zur fertigen Anwendung"
+ * von Ralf Eggert ist im Addison-Wesley Verlag erschienen. 
+ * ISBN 978-3-8273-2994-3
+ * 
+ * @package    Application
+ * @author     Ralf Eggert <r.eggert@travello.de>
+ * @copyright  Alle Listings sind urheberrechtlich geschützt!
+ * @link       http://www.zendframeworkbuch.de/ und http://www.awl.de/2994
+ */
+
+/**
+ * Listing 7.5 view script
+ * 
+ * @package    Application
+ */
+?>
+<div class="row">
+<div class="span9">
+<h1>Listing 7.5</h1>
+<h3>Konfiguration für Controller mit <code>getControllerConfig()</code> bereitstellen</h3>
+<pre>
+&lt;?php 
+namespace Pizza;
+
+use Zend\ModuleManager\Feature\ControllerProviderInterface;
+use Pizza\Controller\AdminController;
+
+class Module implements ControllerProviderInterface
+{
+    public function getControllerConfig()
+    {
+        return array(
+            'invokables' => array(
+                'pizza-index' => 'Pizza\Controller\IndexController',
+            ),
+            'factories' => array(
+                'pizza-admin' => function ($sm) {
+                    $service    = $sm->getServiceLocator->get('Pizza\Service\Pizza');
+                    $controller = new AdminController($service);
+                    return $controller;
+                },
+            ),
+        );
+    }
+}
+</pre>
+</div>
+</div>
